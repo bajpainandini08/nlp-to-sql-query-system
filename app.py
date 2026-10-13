@@ -82,7 +82,7 @@ if st.button("Generate SQL and run", type="primary", disabled=not question):
     except RuntimeError as error:
         st.error(str(error))
     except Exception as error:
-    st.error(f"Request failed: {type(error).__name__}: {error}")
+        st.error(f"Request failed: {type(error).__name__}: {error}")
 
 if "generated_sql" in st.session_state:
     st.header("3. Generated SQL")
