@@ -8,6 +8,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+SQL_RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "sql": {
+            "type": "string",
+            "description": "One SQLite SELECT query only.",
+        }
+    },
+    "required": ["sql"],
+    "additionalProperties": False,
+}
+
 
 def generate_sql(question: str, schema_context: str) -> str:
     """Ask Gemini for one SQL query over the active `dataset` table."""
@@ -17,7 +29,8 @@ def generate_sql(question: str, schema_context: str) -> str:
             "GEMINI_API_KEY is not configured. Add it to .env or Streamlit secrets."
         )
 
-    from openai import OpenAI
+    from google import genai
+    from google.genai import types
 
     instructions = """You translate natural-language data questions into SQLite SQL.
 Return exactly one JSON object with a single `sql` field. Use ONLY the table and quoted
@@ -31,24 +44,20 @@ dataset, return a harmless SELECT with a clear literal message and LIMIT 1."""
         f"Question: {question}"
     )
 
-    client = OpenAI(
-        api_key=api_key,
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-    )
-
-    response = client.chat.completions.create(
-        model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash"),
-        messages=[
-            {"role": "system", "content": instructions},
-            {"role": "user", "content": prompt},
-        ],
-        response_format={"type": "json_object"},
-        temperature=0,
+    client = genai.Client(api_key=api_key)
+    response = client.models.generate_content(
+        model=os.getenv("GEMINI_MODEL", "gemini-3.7-flash"),
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            system_instruction=instructions,
+            response_mime_type="application/json",
+            response_json_schema=SQL_RESPONSE_SCHEMA,
+            temperature=0,
+        ),
     )
 
     try:
-        content = response.choices[0].message.content
-        sql = json.loads(content or "")["sql"]
+        sql = json.loads(response.text or "")["sql"]
     except (json.JSONDecodeError, KeyError, TypeError) as error:
         raise RuntimeError("Gemini returned an unreadable SQL response.") from error
 

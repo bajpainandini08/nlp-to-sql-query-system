@@ -15,7 +15,7 @@ The LLM receives the question plus compact schema metadata—types and up to fiv
 - Sample CSV and arbitrary CSV upload
 - Dynamic row/column counts, types, missing values, unique values, and preview
 - Database-safe unique column names while retaining original labels
-- Google Gemini API through its OpenAI-compatible Chat Completions endpoint
+- Google Gemini API with native structured JSON output
 - Schema-driven SQL generation; no sales-specific rules or fixed questions
 - Structural validator, database compilation validation, SQLite read-only authorizer, and 1,000-row display cap
 - Generic bar/line chart recommendation and CSV result download
@@ -49,7 +49,7 @@ Copy-Item .env.example .env
 python -m streamlit run app.py
 ```
 
-Set `GEMINI_API_KEY` in `.env` and never commit it. `GEMINI_MODEL` is optional and defaults to `gemini-3.5-flash`; choose a model available to your Google AI Studio account. The implementation uses Gemini's OpenAI-compatible Chat Completions endpoint and requests JSON containing only a SQL field.
+Set `GEMINI_API_KEY` in `.env` and never commit it. `GEMINI_MODEL` is optional and defaults to `gemini-3.7-flash`; choose a model available to your Google AI Studio account. The implementation uses Gemini's native API and requests structured JSON containing only a SQL field.
 
 ## Usage
 
