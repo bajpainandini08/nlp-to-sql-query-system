@@ -81,8 +81,8 @@ if st.button("Generate SQL and run", type="primary", disabled=not question):
         st.session_state.validation_message = "SQL passed structural and database validation."
     except RuntimeError as error:
         st.error(str(error))
-    except Exception:
-        st.error("The request could not be completed. Check your API configuration and try a clearer question.")
+    except Exception as error:
+    st.error(f"Request failed: {type(error).__name__}: {error}")
 
 if "generated_sql" in st.session_state:
     st.header("3. Generated SQL")
